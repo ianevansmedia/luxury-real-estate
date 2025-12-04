@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import Image from "next/image";
 import { categories } from "@/lib/data";
@@ -10,17 +12,24 @@ export default function Collections() {
           
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
              {categories.map((cat) => (
-                <div key={cat.title} className="relative h-[400px] group cursor-pointer overflow-hidden border border-white/10">
+                <div key={cat.title} className="relative h-[400px] group cursor-pointer overflow-hidden border border-white/10 rounded-sm">
+                   
+                   {/* Image: Full Color, Zoom on Hover */}
                    <Image 
                       src={cat.image} 
                       alt={cat.title} 
                       fill 
-                      className="object-cover grayscale group-hover:grayscale-0 transition-all duration-700 opacity-60 group-hover:opacity-100"
+                      className="object-cover transition-transform duration-1000 group-hover:scale-110"
                    />
-                   <div className="absolute inset-0 bg-black/40 group-hover:bg-transparent transition-all duration-500"></div>
-                   <div className="absolute inset-0 flex flex-col justify-center items-center z-10">
-                      <h3 className="text-2xl font-serif italic text-white mb-2">{cat.title}</h3>
-                      <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#D4AF37] border border-[#D4AF37] px-3 py-1 opacity-0 group-hover:opacity-100 transition-all transform translate-y-4 group-hover:translate-y-0 duration-500">
+                   
+                   {/* Permanent Gradient Overlay (Bottom Up) for text visibility */}
+                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-90"></div>
+                   
+                   {/* Content: Centered at bottom */}
+                   <div className="absolute inset-0 flex flex-col justify-end items-center pb-12 z-10">
+                      <h3 className="text-3xl font-serif italic text-white mb-4 tracking-wide group-hover:text-[#D4AF37] transition-colors">{cat.title}</h3>
+                      
+                      <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white border border-white/30 px-6 py-3 group-hover:bg-[#D4AF37] group-hover:text-black group-hover:border-[#D4AF37] transition-all">
                          {cat.count} Listings
                       </span>
                    </div>

@@ -9,9 +9,11 @@ export async function createClient() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
+        // New standard for Supabase SSR: getAll instead of get
         getAll() {
           return cookieStore.getAll()
         },
+        // New standard: setAll instead of set/remove
         setAll(cookiesToSet) {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
