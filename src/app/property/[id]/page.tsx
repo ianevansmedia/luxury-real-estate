@@ -9,9 +9,21 @@ import PropertyImage from "@/components/PropertyImage";
 
 async function getProperty(id: string) {
   const supabase = await createClient();
+  
+  // Fetch property AND the linked agent data
   const { data: property, error } = await supabase
     .from('properties')
-    .select('*')
+    .select(`
+      *,
+      agents (
+        id,
+        name,
+        role,
+        image_url,
+        email,
+        phone
+      )
+    `)
     .eq('id', id)
     .single();
   
@@ -20,7 +32,6 @@ async function getProperty(id: string) {
 }
 
 export default async function PropertyPage({ params }: { params: Promise<{ id: string }> }) {
-  // Await params for Next.js 15+ compatibility
   const { id } = await params;
   const property = await getProperty(id);
 
@@ -28,11 +39,17 @@ export default async function PropertyPage({ params }: { params: Promise<{ id: s
     return notFound();
   }
 
+  // Handle case where no agent is assigned yet
+  const agent = property.agents || {
+    name: "Obsidian Private Office",
+    role: "Concierge",
+    image_url: null
+  };
+
   return (
     <main className="bg-[#050505] text-white min-h-screen font-sans selection:bg-[#D4AF37] selection:text-black relative">
       <Navbar />
 
-      {/* Floating Back Button */}
       <div className="fixed bottom-8 right-8 z-50">
         <Link 
           href="/search" 
@@ -47,8 +64,7 @@ export default async function PropertyPage({ params }: { params: Promise<{ id: s
         <PropertyImage 
           src={property.image_url} 
           alt={property.title} 
-          // Pass category for fallback (checks type, then tag, then title)
-          category={property.type || property.tag || property.title}
+          category={property.type || property.tag}
           fill 
           className="object-cover"
           priority 
@@ -82,7 +98,7 @@ export default async function PropertyPage({ params }: { params: Promise<{ id: s
         </div>
       </div>
 
-      {/* DETAILS GRID */}
+      {/* DETAILS */}
       <div className="max-w-[1600px] mx-auto px-6 md:px-12 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
           
@@ -90,24 +106,15 @@ export default async function PropertyPage({ params }: { params: Promise<{ id: s
             <div className="flex flex-wrap gap-8 md:gap-16 border-y border-white/10 py-8">
               <div className="flex items-center gap-3">
                 <Bed className="text-[#D4AF37]" size={24} />
-                <div>
-                    <span className="block text-2xl font-light">{property.beds}</span>
-                    <span className="text-[10px] font-bold uppercase text-gray-500 tracking-widest">Bedrooms</span>
-                </div>
+                <div><span className="block text-2xl font-light">{property.beds}</span><span className="text-[10px] font-bold uppercase text-gray-500 tracking-widest">Bedrooms</span></div>
               </div>
               <div className="flex items-center gap-3">
                 <Bath className="text-[#D4AF37]" size={24} />
-                <div>
-                    <span className="block text-2xl font-light">{property.baths}</span>
-                    <span className="text-[10px] font-bold uppercase text-gray-500 tracking-widest">Bathrooms</span>
-                </div>
+                <div><span className="block text-2xl font-light">{property.baths}</span><span className="text-[10px] font-bold uppercase text-gray-500 tracking-widest">Bathrooms</span></div>
               </div>
               <div className="flex items-center gap-3">
                 <Square className="text-[#D4AF37]" size={24} />
-                <div>
-                    <span className="block text-2xl font-light">{property.sqft?.toLocaleString()}</span>
-                    <span className="text-[10px] font-bold uppercase text-gray-500 tracking-widest">Sq Ft</span>
-                </div>
+                <div><span className="block text-2xl font-light">{property.sqft?.toLocaleString()}</span><span className="text-[10px] font-bold uppercase text-gray-500 tracking-widest">Sq Ft</span></div>
               </div>
             </div>
 
@@ -121,16 +128,28 @@ export default async function PropertyPage({ params }: { params: Promise<{ id: s
 
           <div className="lg:col-span-4 relative">
             <div className="sticky top-32 bg-[#111] border border-white/10 p-8 rounded-lg">
-              <div className="flex items-center gap-4 mb-6">
-                 <div className="w-12 h-12 rounded-full bg-gray-800 border border-[#D4AF37] flex items-center justify-center"><User size={20}/></div>
+              {/* Agent Profile Link */}
+              <Link href="/agents" className="flex items-center gap-4 mb-6 group cursor-pointer">
+                 <div className="w-12 h-12 rounded-full bg-gray-800 border border-[#D4AF37] flex items-center justify-center overflow-hidden relative">
+                    {agent.image_url ? (
+                        <img src={agent.image_url} alt={agent.name} className="object-cover w-full h-full" />
+                    ) : (
+                        <User size={20} className="text-white"/>
+                    )}
+                 </div>
                  <div>
                     <p className="text-[#D4AF37] text-xs font-bold uppercase">Listing Agent</p>
-                    <p className="text-lg font-serif">Jonathan Black</p>
+                    <p className="text-lg font-serif group-hover:text-[#D4AF37] transition-colors">{agent.name}</p>
                  </div>
-              </div>
-              <button className="w-full bg-[#D4AF37] text-black font-bold uppercase text-xs tracking-widest py-4 hover:bg-white transition-colors">
+              </Link>
+              
+              {/* 🟢 UPDATED: NOW LINKS TO CONTACT PAGE WITH PRE-FILLED DATA */}
+              <Link 
+                href={`/contact?agent=${encodeURIComponent(agent.name)}&property=${encodeURIComponent(property.title)}`}
+                className="w-full bg-[#D4AF37] text-black font-bold uppercase text-xs tracking-widest py-4 hover:bg-white transition-colors cursor-pointer block text-center"
+              >
                 Schedule Viewing
-              </button>
+              </Link>
             </div>
           </div>
 

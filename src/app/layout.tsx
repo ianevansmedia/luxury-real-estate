@@ -1,15 +1,10 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
+// 🟢 Import the Provider
+import { SavedProvider } from "@/context/SavedContext"; 
 
-// Load luxury fonts
-const sans = Inter({ subsets: ["latin"], variable: '--font-sans' });
-const serif = Playfair_Display({ subsets: ["latin"], variable: '--font-serif' });
-
-export const metadata: Metadata = {
-  title: "Obsidian | Global Luxury Real Estate",
-  description: "Exclusive properties for the discerning buyer.",
-};
+// ... fonts and metadata ...
 
 export default function RootLayout({
   children,
@@ -17,12 +12,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        suppressHydrationWarning
-        className={`${sans.variable} ${serif.variable} antialiased bg-[#050505] text-white`}
-      >
-        {children}
+    <html lang="en">
+      <body className="...">
+        {/* 🟢 Wrap children in SavedProvider */}
+        <SavedProvider>
+          {children}
+        </SavedProvider>
       </body>
     </html>
   );
