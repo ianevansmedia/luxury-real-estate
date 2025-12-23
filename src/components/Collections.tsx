@@ -33,9 +33,12 @@ const COLLECTIONS = [
 
 export default function Collections() {
   return (
-    <div className="bg-[#0A0A0A] py-32 border-t border-white/10">
+    // 🟢 UPDATED: Changed py-32 to py-16 md:py-32 to tighten mobile spacing
+    <div className="bg-[#0A0A0A] py-16 md:py-32 border-t border-white/10">
        <div className="max-w-[1600px] mx-auto px-6 md:px-12">
-          <h2 className="text-3xl font-serif mb-16 text-center text-white">Curated Collections</h2>
+          
+          {/* 🟢 UPDATED: Changed mb-16 to mb-10 md:mb-16 */}
+          <h2 className="text-3xl font-serif mb-10 md:mb-16 text-center text-white">Curated Collections</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
              {COLLECTIONS.map((cat) => (

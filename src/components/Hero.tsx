@@ -9,8 +9,9 @@ const HERO_IMAGE = "https://images.unsplash.com/photo-1512917774080-9991f1c4c750
 
 export default function Hero() {
   return (
-    // 🟢 Main container
-    <div className="relative w-full min-h-[100vh] flex flex-col justify-center items-center pb-20 pt-32 bg-[#050505]">
+    // 🟢 UPDATED: Changed min-h-[100vh] to min-h-[85vh] and pb-20 to pb-8
+    // This pulls the bottom of the hero up.
+    <div className="relative w-full min-h-[85vh] flex flex-col justify-center items-center pb-8 pt-32 bg-[#050505]">
       
       {/* 🟢 Background Wrapper */}
       <div className="absolute inset-0 z-0 overflow-hidden">

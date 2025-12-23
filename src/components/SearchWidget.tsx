@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import PropertyImage from "@/components/PropertyImage"; 
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Search, ChevronDown, ArrowRight, MapPin, Check } from "lucide-react";
+import { Search, ChevronDown, ArrowRight, MapPin, Check, SlidersHorizontal, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import PropertyImage from "@/components/PropertyImage";
 
 // Options
 const PROPERTY_TYPES = ["Estate", "Penthouse", "Villa", "Modern", "Alpine", "Historic", "Skyline", "Desert"];
@@ -30,6 +31,9 @@ export default function SearchWidget() {
   const [selectedBeds, setSelectedBeds] = useState(""); 
   const [selectedBaths, setSelectedBaths] = useState(""); 
   const [activeTab, setActiveTab] = useState("buy");
+  
+  // Mobile Toggle State
+  const [showAdvancedMobile, setShowAdvancedMobile] = useState(false);
 
   // Dropdown Visibility
   const [activeMenu, setActiveMenu] = useState<"none" | "location" | "type" | "price" | "beds" | "baths">("none");
@@ -55,10 +59,14 @@ export default function SearchWidget() {
       }
       const { data } = await supabase
         .from('properties')
-        .select('id, title, location, image_url, price')
-        .or(`title.ilike.%${locationQuery}%,location.ilike.%${locationQuery}%`)
+        .select('location')
+        .ilike('location', `%${locationQuery}%`)
         .limit(5);
-      if (data) setSuggestions(data);
+
+      if (data) {
+          const uniqueLocations = Array.from(new Set(data.map(item => item.location))).map(loc => ({ location: loc }));
+          setSuggestions(uniqueLocations);
+      }
     };
     const delayDebounce = setTimeout(fetchSuggestions, 300);
     return () => clearTimeout(delayDebounce);
@@ -68,13 +76,7 @@ export default function SearchWidget() {
   const handleSearch = () => {
     const params = new URLSearchParams();
     if (activeTab) params.set("mode", activeTab);
-    if (locationQuery) {
-        let cleanQuery = locationQuery;
-        if (cleanQuery.includes(',')) {
-            cleanQuery = cleanQuery.split(',')[0];
-        }
-        params.set("q", cleanQuery.trim());
-    }
+    if (locationQuery) params.set("q", locationQuery.trim());
     if (selectedType) params.set("type", selectedType);
     if (selectedPrice) params.set("minPrice", selectedPrice);
     if (selectedBeds) params.set("beds", selectedBeds);   
@@ -89,10 +91,10 @@ export default function SearchWidget() {
   };
 
   return (
-    <div ref={searchRef} className="bg-black/40 backdrop-blur-xl border border-white/20 p-1 rounded-sm shadow-2xl animate-in fade-in zoom-in-95 duration-1000 delay-300 relative z-50">
+    <div ref={searchRef} className="bg-black/40 backdrop-blur-xl border border-white/20 p-1 rounded-sm shadow-2xl animate-in fade-in zoom-in-95 duration-1000 delay-300 relative z-20 w-full max-w-5xl">
         
         {/* Tabs */}
-        <div className="flex gap-4 mb-2 px-4 pt-2">
+        <div className="flex gap-4 mb-2 px-4 pt-2 border-b border-white/10 pb-2">
           {['buy', 'rent', 'sold'].map((tab) => (
               <button 
                 key={tab}
@@ -104,16 +106,16 @@ export default function SearchWidget() {
           ))}
         </div>
 
-        {/* Inputs Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-px bg-white/10 border border-white/10">
+        {/* Inputs Container */}
+        <div className="flex flex-col md:grid md:grid-cols-12 gap-px bg-white/10 border border-white/10">
           
-          {/* 1. LOCATION (Col-4) */}
-          <div className="md:col-span-4 relative">
+          {/* 1. LOCATION (Order 1) */}
+          <div className="md:col-span-4 relative order-1">
               <div 
-                className="bg-black/60 flex items-center px-6 py-4 hover:bg-black/80 transition-colors cursor-text backdrop-blur-md h-full"
+                className="bg-black/60 flex items-center px-4 py-4 hover:bg-black/80 transition-colors cursor-text backdrop-blur-md h-full"
                 onClick={() => setActiveMenu("location")}
               >
-                <Search size={18} className="text-gray-400 mr-4 group-hover:text-white" />
+                <Search size={18} className="text-gray-400 mr-3 group-hover:text-white" />
                 <div className="w-full">
                     <label className="text-[10px] text-[#D4AF37] font-bold uppercase tracking-widest mb-1 block">Location</label>
                     <input 
@@ -130,64 +132,24 @@ export default function SearchWidget() {
               {activeMenu === "location" && suggestions.length > 0 && (
                 <div className="absolute top-full left-0 w-full mt-px bg-[#111] border border-white/10 shadow-2xl z-[100] max-h-[300px] overflow-y-auto">
                     <p className="px-4 py-2 text-[10px] font-bold uppercase text-[#D4AF37] tracking-widest bg-black/50 sticky top-0">Suggestions</p>
-                    {suggestions.map((s) => (
+                    {suggestions.map((s, i) => (
                       <div 
-                          key={s.id}
+                          key={i}
                           onClick={() => {
-                            setLocationQuery(s.location || ""); 
+                            setLocationQuery(s.location); 
                             setActiveMenu("none");
                           }}
                           className="px-4 py-3 hover:bg-white/5 cursor-pointer flex items-center gap-3 text-sm font-medium text-gray-300 border-b border-white/5 last:border-0"
                       >
-                          <div className="w-8 h-8 relative rounded overflow-hidden shrink-0 bg-gray-800">
-                            <PropertyImage 
-                                src={s.image_url} 
-                                alt={s.title}
-                                category={s.title}
-                                fill 
-                                className="object-cover" 
-                            />
-                          </div>
-                          <div>
-                            <div className="font-bold text-white line-clamp-1">{s.title}</div>
-                            <div className="text-xs text-gray-500 flex items-center gap-1"><MapPin size={10}/> {s.location}</div>
-                          </div>
+                          <MapPin size={14} className="text-[#D4AF37]" /> {s.location}
                       </div>
                     ))}
                 </div>
               )}
           </div>
 
-          {/* 2. TYPE (Col-2) */}
-          <div className="md:col-span-2 relative">
-              <div 
-                className="bg-black/60 flex items-center justify-between px-4 py-4 hover:bg-black/80 transition-colors cursor-pointer border-l border-white/5 backdrop-blur-md h-full"
-                onClick={() => setActiveMenu(activeMenu === "type" ? "none" : "type")}
-              >
-                <div className="overflow-hidden">
-                    <label className="text-[10px] text-[#D4AF37] font-bold uppercase tracking-widest mb-1 block">Type</label>
-                    <span className="text-sm font-medium text-white block truncate">{selectedType || "All"}</span>
-                </div>
-                <ChevronDown size={14} className="text-gray-500 shrink-0 ml-2" />
-              </div>
-
-              {activeMenu === "type" && (
-                <div className="absolute top-full left-0 w-full mt-px bg-[#111] border border-white/10 shadow-2xl z-[100] max-h-[300px] overflow-y-auto">
-                    {PROPERTY_TYPES.map(type => (
-                      <div 
-                          key={type} 
-                          onClick={() => { setSelectedType(type); setActiveMenu("none"); }} 
-                          className="px-6 py-3 text-sm font-bold text-gray-400 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5 flex justify-between items-center cursor-pointer"
-                      >
-                          {type} {selectedType === type && <Check size={14} className="text-[#D4AF37]"/>}
-                      </div>
-                    ))}
-                </div>
-              )}
-          </div>
-
-          {/* 3. PRICE (Col-2) */}
-          <div className="md:col-span-2 relative">
+          {/* 2. PRICE (Order 2) */}
+          <div className="md:col-span-2 relative order-2">
               <div 
                 className="bg-black/60 flex items-center justify-between px-4 py-4 hover:bg-black/80 transition-colors cursor-pointer border-l border-white/5 backdrop-blur-md h-full"
                 onClick={() => setActiveMenu(activeMenu === "price" ? "none" : "price")}
@@ -218,73 +180,126 @@ export default function SearchWidget() {
               )}
           </div>
 
-          {/* 4. BEDS (Col-2) */}
-          <div className="md:col-span-2 relative">
-              <div 
-                className="bg-black/60 flex items-center justify-between px-3 py-4 hover:bg-black/80 transition-colors cursor-pointer border-l border-white/5 backdrop-blur-md h-full"
-                onClick={() => setActiveMenu(activeMenu === "beds" ? "none" : "beds")}
-              >
-                <div>
-                    <label className="text-[10px] text-[#D4AF37] font-bold uppercase tracking-widest mb-1 block">Beds</label>
-                    <span className="text-sm font-medium text-white">{selectedBeds || "Any"}</span>
-                </div>
-                <ChevronDown size={14} className="text-gray-500 shrink-0" />
-              </div>
-
-              {activeMenu === "beds" && (
-                <div className="absolute top-full left-0 w-full mt-px bg-[#111] border border-white/10 shadow-2xl z-[100] max-h-[300px] overflow-y-auto">
-                    <div onClick={() => { setSelectedBeds(""); setActiveMenu("none"); }} className="px-4 py-3 text-sm font-bold text-gray-500 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5 cursor-pointer">Any</div>
-                    {NUMBER_OPTIONS.map(num => (
-                      <div 
-                          key={num} 
-                          onClick={() => { setSelectedBeds(num); setActiveMenu("none"); }} 
-                          className="px-4 py-3 text-sm font-bold text-gray-400 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5 flex justify-between items-center cursor-pointer"
-                      >
-                          {num} {selectedBeds === num && <Check size={14} className="text-[#D4AF37]"/>}
-                      </div>
-                    ))}
-                </div>
-              )}
+          {/* 🟢 MOBILE TOGGLE: More Filters (Order 3) */}
+          <div className="md:hidden order-3 border-t border-white/10">
+             <button 
+                onClick={() => setShowAdvancedMobile(!showAdvancedMobile)}
+                className="w-full bg-black/60 text-gray-400 font-bold uppercase text-[10px] py-4 flex items-center justify-center gap-2 hover:text-white hover:bg-black/80 transition-colors"
+             >
+                {showAdvancedMobile ? <X size={12} /> : <SlidersHorizontal size={12} />} 
+                {showAdvancedMobile ? "Close Filters" : "More Filters"}
+             </button>
           </div>
 
-          {/* 5. BATHS (Col-2) */}
-          <div className="md:col-span-2 relative">
-              <div 
-                className="bg-black/60 flex items-center justify-between px-3 py-4 hover:bg-black/80 transition-colors cursor-pointer border-l border-white/5 backdrop-blur-md h-full"
-                onClick={() => setActiveMenu(activeMenu === "baths" ? "none" : "baths")}
-              >
-                <div>
-                    <label className="text-[10px] text-[#D4AF37] font-bold uppercase tracking-widest mb-1 block">Bath</label>
-                    <span className="text-sm font-medium text-white">{selectedBaths || "Any"}</span>
-                </div>
-                <ChevronDown size={14} className="text-gray-500 shrink-0" />
+          {/* 🟢 ANIMATED CONTAINER (Order 4) */}
+          {/* Mobile: Slides Down. Desktop: Grid Columns 3, 4, 5 (Top Row) */}
+          <div 
+             className={`
+                order-4 md:col-span-6 md:grid md:grid-cols-6 md:gap-px 
+                transition-all duration-500 ease-in-out overflow-hidden
+                ${showAdvancedMobile ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0 md:max-h-none md:opacity-100'}
+             `}
+          >
+              
+              {/* 3. TYPE (Col-2) */}
+              <div className="md:col-span-2 relative border-t border-white/10 md:border-t-0">
+                  <div 
+                    className="bg-black/60 flex items-center justify-between px-4 py-4 hover:bg-black/80 transition-colors cursor-pointer md:border-l border-white/5 backdrop-blur-md h-full"
+                    onClick={() => setActiveMenu(activeMenu === "type" ? "none" : "type")}
+                  >
+                    <div className="overflow-hidden">
+                        <label className="text-[10px] text-[#D4AF37] font-bold uppercase tracking-widest mb-1 block">Type</label>
+                        <span className="text-sm font-medium text-white block truncate">{selectedType || "All"}</span>
+                    </div>
+                    <ChevronDown size={14} className="text-gray-500 shrink-0 ml-2" />
+                  </div>
+
+                  {activeMenu === "type" && (
+                    <div className="absolute top-full left-0 w-full mt-px bg-[#111] border border-white/10 shadow-2xl z-[100] max-h-[300px] overflow-y-auto">
+                        <div onClick={() => { setSelectedType(""); setActiveMenu("none"); }} className="px-6 py-3 text-sm font-bold text-gray-500 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5 cursor-pointer">All Types</div>
+                        {PROPERTY_TYPES.map(type => (
+                          <div 
+                              key={type} 
+                              onClick={() => { setSelectedType(type); setActiveMenu("none"); }} 
+                              className="px-6 py-3 text-sm font-bold text-gray-700 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5 flex justify-between items-center cursor-pointer"
+                          >
+                              {type} {selectedType === type && <Check size={14} className="text-[#D4AF37]"/>}
+                          </div>
+                        ))}
+                    </div>
+                  )}
               </div>
 
-              {activeMenu === "baths" && (
-                <div className="absolute top-full left-0 w-full mt-px bg-[#111] border border-white/10 shadow-2xl z-[100] max-h-[300px] overflow-y-auto">
-                    <div onClick={() => { setSelectedBaths(""); setActiveMenu("none"); }} className="px-4 py-3 text-sm font-bold text-gray-500 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5 cursor-pointer">Any</div>
-                    {NUMBER_OPTIONS.map(num => (
-                      <div 
-                          key={num} 
-                          onClick={() => { setSelectedBaths(num); setActiveMenu("none"); }} 
-                          className="px-4 py-3 text-sm font-bold text-gray-400 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5 flex justify-between items-center cursor-pointer"
-                      >
-                          {num} {selectedBaths === num && <Check size={14} className="text-[#D4AF37]"/>}
-                      </div>
-                    ))}
-                </div>
-              )}
+              {/* 4. BEDS (Col-2) */}
+              <div className="md:col-span-2 relative border-t border-white/10 md:border-t-0">
+                  <div 
+                    className="bg-black/60 flex items-center justify-between px-3 py-4 hover:bg-black/80 transition-colors cursor-pointer md:border-l border-white/5 backdrop-blur-md h-full"
+                    onClick={() => setActiveMenu(activeMenu === "beds" ? "none" : "beds")}
+                  >
+                    <div>
+                        <label className="text-[10px] text-[#D4AF37] font-bold uppercase tracking-widest mb-1 block">Beds</label>
+                        <span className="text-sm font-medium text-white">{selectedBeds || "Any"}</span>
+                    </div>
+                    <ChevronDown size={14} className="text-gray-500 shrink-0" />
+                  </div>
+
+                  {activeMenu === "beds" && (
+                    <div className="absolute top-full left-0 w-full mt-px bg-[#111] border border-white/10 shadow-2xl z-[100] max-h-[300px] overflow-y-auto">
+                        <div onClick={() => { setSelectedBeds(""); setActiveMenu("none"); }} className="px-4 py-3 text-sm font-bold text-gray-500 hover:text-white hover:bg-white/5 transition-colors border-b border-gray-100 cursor-pointer">Any</div>
+                        {NUMBER_OPTIONS.map(num => (
+                          <div 
+                              key={num} 
+                              onClick={() => { setSelectedBeds(num); setActiveMenu("none"); }} 
+                              className="px-4 py-3 text-sm font-bold text-gray-700 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5 flex justify-between items-center cursor-pointer"
+                          >
+                              {num} {selectedBeds === num && <Check size={14} className="text-[#D4AF37]"/>}
+                          </div>
+                        ))}
+                    </div>
+                  )}
+              </div>
+
+              {/* 5. BATHS (Col-2) */}
+              <div className="md:col-span-2 relative border-t border-white/10 md:border-t-0">
+                  <div 
+                    className="bg-black/60 flex items-center justify-between px-3 py-4 hover:bg-black/80 transition-colors cursor-pointer md:border-l border-white/5 backdrop-blur-md h-full"
+                    onClick={() => setActiveMenu(activeMenu === "baths" ? "none" : "baths")}
+                  >
+                    <div>
+                        <label className="text-[10px] text-[#D4AF37] font-bold uppercase tracking-widest mb-1 block">Bath</label>
+                        <span className="text-sm font-medium text-white">{selectedBaths || "Any"}</span>
+                    </div>
+                    <ChevronDown size={14} className="text-gray-500 shrink-0" />
+                  </div>
+
+                  {activeMenu === "baths" && (
+                    <div className="absolute top-full left-0 w-full mt-px bg-[#111] border border-white/10 shadow-2xl z-[100] max-h-[300px] overflow-y-auto">
+                        <div onClick={() => { setSelectedBaths(""); setActiveMenu("none"); }} className="px-4 py-3 text-sm font-bold text-gray-500 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5 cursor-pointer">Any</div>
+                        {NUMBER_OPTIONS.map(num => (
+                          <div 
+                              key={num} 
+                              onClick={() => { setSelectedBaths(num); setActiveMenu("none"); }} 
+                              className="px-4 py-3 text-sm font-bold text-gray-400 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5 flex justify-between items-center cursor-pointer"
+                          >
+                              {num} {selectedBaths === num && <Check size={14} className="text-[#D4AF37]"/>}
+                          </div>
+                        ))}
+                    </div>
+                  )}
+              </div>
           </div>
 
+          {/* 6. SEARCH BUTTON (Order 5) */}
+          {/* Mobile: At bottom of stack. Desktop: Full Width on new row */}
+          <div className="order-5 md:col-span-12 border-t border-white/10 md:border-t-0 md:mt-2">
+             <button 
+                onClick={handleSearch}
+                className="w-full h-full min-h-[60px] bg-white/5 backdrop-blur-2xl border-t border-l border-white/30 border-b border-r border-black/30 text-white hover:bg-[#D4AF37]/20 hover:border-[#D4AF37]/50 transition-all duration-300 font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-2 cursor-pointer py-4"
+             >
+                Search Portfolio <ArrowRight size={14}/>
+             </button>
+          </div>
         </div>
-
-        {/* 6. SEARCH BUTTON - 🟢 3D GOLD GRADIENT */}
-        <button 
-            onClick={handleSearch}
-            className="w-full bg-gradient-to-b from-[#F3D87E] via-[#D4AF37] to-[#B38F1D] text-black font-bold uppercase tracking-widest text-sm transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer py-4 mt-px border-t border-white/40 border-b border-black/20 shadow-[0_4px_10px_rgba(0,0,0,0.3)] hover:shadow-[0_0_35px_rgba(212,175,55,0.6)] hover:brightness-110 active:scale-[0.99]"
-        >
-            Search Portfolio <ArrowRight size={14}/>
-        </button>
         
     </div>
   );

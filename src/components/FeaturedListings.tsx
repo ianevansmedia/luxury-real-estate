@@ -5,7 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, MapPin, Bed, Bath, Square } from "lucide-react";
 import { createClient } from "@/lib/supabase/client"; 
-// 🟢 Import the Save Button
 import SaveButton from "@/components/SaveButton";
 
 export default function FeaturedListings() {
@@ -29,9 +28,12 @@ export default function FeaturedListings() {
   }, []);
 
   return (
-    <div className="max-w-[1600px] mx-auto px-6 md:px-12 py-24">
+    // 🟢 UPDATED: Added pt-16 for Mobile (Spacing), kept pt-0 for Desktop
+    <div className="max-w-[1600px] mx-auto px-6 md:px-12 pt-16 md:pt-0 pb-24">
+       
        {/* Section Header */}
-       <div className="flex flex-col md:flex-row justify-between items-end mb-16 border-b border-white/10 pb-8">
+       {/* 🟢 UPDATED: Changed items-end to items-start md:items-end to fix mobile alignment */}
+       <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 border-b border-white/10 pb-8">
           <div>
              <h2 className="text-4xl font-serif text-white mb-2">Recent Acquisitions</h2>
              <p className="text-gray-500 text-sm">Hand-picked properties by our senior partners.</p>
@@ -49,7 +51,7 @@ export default function FeaturedListings() {
           {properties.map((p) => (
              <div key={p.id} className="group relative">
                 
-                {/* 🟢 SAVE BUTTON (Floating on top) */}
+                {/* Save Button (Floating) */}
                 <div className="absolute top-4 right-4 z-30">
                    <SaveButton propertyId={p.id} />
                 </div>
