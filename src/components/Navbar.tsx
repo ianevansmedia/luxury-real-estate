@@ -53,8 +53,8 @@ export default function Navbar() {
         className={`
           fixed top-0 w-full z-50 border-b transition-all duration-500
           ${isScrolled 
-            ? 'bg-black border-white/10 py-4 shadow-2xl' 
-            : 'bg-black/80 border-white/5 py-6 backdrop-blur-sm'
+            ? 'bg-black border-[#D4AF37]/50 py-4 shadow-[0_4px_30px_-5px_rgba(212,175,55,0.4)]' 
+            : 'bg-black/80 border-[#D4AF37]/20 py-6 backdrop-blur-sm shadow-[0_4px_20px_-10px_rgba(212,175,55,0.2)]'
           }
         `}
       >
@@ -73,7 +73,7 @@ export default function Navbar() {
           </div>
             
           {/* 2. Center: Desktop Links */}
-          {/* 🟢 UPDATED: Increased gap from gap-8 to gap-14 for more spacing */}
+          {/* Gap-14 Preserved */}
           <div className="hidden lg:flex absolute left-1/2 transform -translate-x-1/2 gap-14 z-10">
             <NavLink href="/search?mode=buy" label="Buy" />
             <NavLink href="/sell" label="Sell" />

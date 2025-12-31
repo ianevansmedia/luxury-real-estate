@@ -28,11 +28,12 @@ export default function FeaturedListings() {
   }, []);
 
   return (
-    // 🟢 UPDATED: Added pt-16 for Mobile (Spacing), kept pt-0 for Desktop
-    <div className="max-w-[1600px] mx-auto px-6 md:px-12 pt-16 md:pt-0 pb-24">
+    // 🟢 FIXED: Removed '-mt-32'. 
+    // Changed to 'pt-0' so it sits directly under the Hero without overlapping.
+    // 'relative z-20' ensures it stays above the hero's bottom fade layer if they touch.
+    <div className="max-w-[1600px] mx-auto px-6 md:px-12 pt-0 pb-24 relative z-20">
        
        {/* Section Header */}
-       {/* 🟢 UPDATED: Changed items-end to items-start md:items-end to fix mobile alignment */}
        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 border-b border-white/10 pb-8">
           <div>
              <h2 className="text-4xl font-serif text-white mb-2">Recent Acquisitions</h2>

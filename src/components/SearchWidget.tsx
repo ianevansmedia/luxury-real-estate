@@ -294,7 +294,7 @@ export default function SearchWidget() {
           <div className="order-5 md:col-span-12 border-t border-white/10 md:border-t-0 md:mt-2">
              <button 
                 onClick={handleSearch}
-                className="w-full h-full min-h-[60px] bg-white/5 backdrop-blur-2xl border-t border-l border-white/30 border-b border-r border-black/30 text-white hover:bg-[#D4AF37]/20 hover:border-[#D4AF37]/50 transition-all duration-300 font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-2 cursor-pointer py-4"
+                className="w-full h-full min-h-[60px] bg-white/5 backdrop-blur-2xl border-t border-l border-white/30 border-b border-r border-black/30 text-white hover:bg-[#D4AF37]/30 hover:border-[#D4AF37]/50 transition-all duration-300 font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-2 cursor-pointer py-4"
              >
                 Search Portfolio <ArrowRight size={14}/>
              </button>
