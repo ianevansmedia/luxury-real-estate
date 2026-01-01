@@ -24,8 +24,8 @@ export default function AgentsPage() {
       <Navbar />
 
       {/* --- HERO SECTION --- */}
-      {/* 🟢 UPDATED: Standardized height to h-[70vh] */}
-      <section className="relative h-[70vh] flex items-center justify-center overflow-hidden">
+      {/* 🟢 MOBILE ONLY: Reduced height to h-[55vh] to pull content up */}
+      <section className="relative h-[55vh] md:h-[70vh] flex items-center justify-center overflow-hidden">
         <Image
           src="https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1600&auto=format&fit=crop"
           alt="Agents Hero"
@@ -35,7 +35,8 @@ export default function AgentsPage() {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-[#050505]"></div>
         
-        <div className="relative z-10 text-center max-w-4xl px-6 pt-20">
+        {/* 🟢 MOBILE ONLY: Reduced pt-12 to center text better in shorter hero */}
+        <div className="relative z-10 text-center max-w-4xl px-6 pt-12 md:pt-20">
           <p className="text-[#D4AF37] text-xs font-bold uppercase tracking-[0.3em] mb-6 animate-in slide-in-from-bottom-4 duration-700">
             Global Advisors
           </p>
@@ -46,7 +47,8 @@ export default function AgentsPage() {
       </section>
 
       {/* --- AGENT GRID --- */}
-      <section className="py-20 px-6 md:px-12 max-w-[1600px] mx-auto">
+      {/* 🟢 MOBILE ONLY: Reduced pt-2 to bring the images closer to the hero */}
+      <section className="pt-2 pb-20 md:py-20 px-6 md:px-12 max-w-[1600px] mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
             {agents.map((agent) => (
                 <div 

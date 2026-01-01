@@ -27,8 +27,8 @@ export default function AboutPage() {
           <p className="text-[#D4AF37] text-xs font-bold uppercase tracking-[0.3em] mb-4 md:mb-6 animate-in slide-in-from-bottom-4 duration-700">
             Our Legacy
           </p>
-          {/* 🟢 UPDATED: Increased mobile text from 4xl to 5xl */}
-          <h1 className="text-5xl md:text-8xl font-serif text-white mb-6 leading-tight animate-in slide-in-from-bottom-8 duration-1000 [text-shadow:0_4px_12px_rgba(0,0,0,0.8)]">
+          {/* 🟢 UPDATED: Changed md:text-8xl to md:text-7xl for better desktop balance */}
+          <h1 className="text-5xl md:text-7xl font-serif text-white mb-6 leading-tight animate-in slide-in-from-bottom-8 duration-1000 [text-shadow:0_4px_12px_rgba(0,0,0,0.8)]">
             Redefining <br /> The Exceptional.
           </h1>
         </div>

@@ -148,8 +148,8 @@ export default function SearchWidget() {
               )}
           </div>
 
-          {/* 2. PRICE (Order 2) */}
-          <div className="md:col-span-2 relative order-2">
+          {/* 2. PRICE (Order 2) - HIDDEN ON MOBILE */}
+          <div className="hidden md:block md:col-span-2 relative order-2">
               <div 
                 className="bg-black/60 flex items-center justify-between px-4 py-4 hover:bg-black/80 transition-colors cursor-pointer border-l border-white/5 backdrop-blur-md h-full"
                 onClick={() => setActiveMenu(activeMenu === "price" ? "none" : "price")}
@@ -192,15 +192,46 @@ export default function SearchWidget() {
           </div>
 
           {/* 🟢 ANIMATED CONTAINER (Order 4) */}
-          {/* Mobile: Slides Down. Desktop: Grid Columns 3, 4, 5 (Top Row) */}
           <div 
              className={`
                 order-4 md:col-span-6 md:grid md:grid-cols-6 md:gap-px 
                 transition-all duration-500 ease-in-out overflow-hidden
-                ${showAdvancedMobile ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0 md:max-h-none md:opacity-100'}
+                ${showAdvancedMobile ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0 md:max-h-none md:opacity-100'}
              `}
           >
               
+              {/* PRICE (Mobile Only) */}
+              <div className="md:hidden relative border-t border-white/10">
+                  <div 
+                    className="bg-black/60 flex items-center justify-between px-4 py-4 hover:bg-black/80 transition-colors cursor-pointer backdrop-blur-md h-full"
+                    onClick={() => setActiveMenu(activeMenu === "price" ? "none" : "price")}
+                  >
+                    <div className="overflow-hidden">
+                        <label className="text-[10px] text-[#D4AF37] font-bold uppercase tracking-widest mb-1 block">Price</label>
+                        <span className="text-sm font-medium text-white block truncate">
+                          {PRICE_RANGES.find(p => p.value === selectedPrice)?.label || "Any"}
+                        </span>
+                    </div>
+                    <ChevronDown size={14} className="text-gray-500 shrink-0 ml-2" />
+                  </div>
+
+                  {activeMenu === "price" && (
+                    <div className="absolute top-full left-0 w-full mt-px bg-[#111] border border-white/10 shadow-2xl z-[100] max-h-[300px] overflow-y-auto">
+                        <div onClick={() => { setSelectedPrice(""); setActiveMenu("none"); }} className="px-6 py-3 text-sm font-bold text-gray-500 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5 cursor-pointer">Any Price</div>
+                        {PRICE_RANGES.map(price => (
+                          <div 
+                              key={price.value} 
+                              onClick={() => { setSelectedPrice(price.value); setActiveMenu("none"); }} 
+                              className="px-6 py-3 text-sm font-bold text-gray-400 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5 flex justify-between items-center cursor-pointer"
+                          >
+                              {price.label}
+                              {selectedPrice === price.value && <Check size={14} className="text-[#D4AF37]"/>}
+                          </div>
+                        ))}
+                    </div>
+                  )}
+              </div>
+
               {/* 3. TYPE (Col-2) */}
               <div className="md:col-span-2 relative border-t border-white/10 md:border-t-0">
                   <div 
@@ -290,7 +321,6 @@ export default function SearchWidget() {
           </div>
 
           {/* 6. SEARCH BUTTON (Order 5) */}
-          {/* Mobile: At bottom of stack. Desktop: Full Width on new row */}
           <div className="order-5 md:col-span-12 border-t border-white/10 md:border-t-0 md:mt-2">
              <button 
                 onClick={handleSearch}
