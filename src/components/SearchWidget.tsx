@@ -91,7 +91,7 @@ export default function SearchWidget() {
   };
 
   return (
-    <div ref={searchRef} className="bg-black/40 backdrop-blur-xl border border-white/20 p-1 rounded-sm shadow-2xl animate-in fade-in zoom-in-95 duration-1000 delay-300 relative z-20 w-full max-w-5xl">
+    <div ref={searchRef} className="bg-black/40 backdrop-blur-xl border border-white/20 p-1 rounded-sm shadow-2xl animate-in fade-in zoom-in-95 duration-1000 delay-300 relative z-[1000] w-full max-w-5xl !overflow-visible">
         
         {/* Tabs */}
         <div className="flex gap-4 mb-2 px-4 pt-2 border-b border-white/10 pb-2">
@@ -107,10 +107,10 @@ export default function SearchWidget() {
         </div>
 
         {/* Inputs Container */}
-        <div className="flex flex-col md:grid md:grid-cols-12 gap-px bg-white/10 border border-white/10">
+        <div className="flex flex-col md:grid md:grid-cols-12 gap-px bg-white/10 border border-white/10 !overflow-visible">
           
-          {/* 1. LOCATION (Order 1) */}
-          <div className="md:col-span-4 relative order-1">
+          {/* 1. LOCATION (Order 1) - Z-Index 60 */}
+          <div className="md:col-span-4 relative order-1 z-[60]">
               <div 
                 className="bg-black/60 flex items-center px-4 py-4 hover:bg-black/80 transition-colors cursor-text backdrop-blur-md h-full"
                 onClick={() => setActiveMenu("location")}
@@ -130,7 +130,7 @@ export default function SearchWidget() {
               </div>
 
               {activeMenu === "location" && suggestions.length > 0 && (
-                <div className="absolute top-full left-0 w-full mt-px bg-[#111] border border-white/10 shadow-2xl z-[100] max-h-[300px] overflow-y-auto">
+                <div className="absolute top-full left-0 w-full mt-px bg-[#111] border border-white/10 shadow-2xl z-[100] max-h-[400px] overflow-y-auto">
                     <p className="px-4 py-2 text-[10px] font-bold uppercase text-[#D4AF37] tracking-widest bg-black/50 sticky top-0">Suggestions</p>
                     {suggestions.map((s, i) => (
                       <div 
@@ -148,8 +148,8 @@ export default function SearchWidget() {
               )}
           </div>
 
-          {/* 2. PRICE (Order 2) - HIDDEN ON MOBILE */}
-          <div className="hidden md:block md:col-span-2 relative order-2">
+          {/* 2. PRICE (Order 2) - Desktop Only - Z-Index 50 */}
+          <div className="hidden md:block md:col-span-2 relative order-2 z-[50]">
               <div 
                 className="bg-black/60 flex items-center justify-between px-4 py-4 hover:bg-black/80 transition-colors cursor-pointer border-l border-white/5 backdrop-blur-md h-full"
                 onClick={() => setActiveMenu(activeMenu === "price" ? "none" : "price")}
@@ -164,13 +164,13 @@ export default function SearchWidget() {
               </div>
 
               {activeMenu === "price" && (
-                <div className="absolute top-full left-0 w-full mt-px bg-[#111] border border-white/10 shadow-2xl z-[100] max-h-[300px] overflow-y-auto">
+                <div className="absolute top-full left-0 w-full mt-px bg-[#111] border border-white/10 shadow-2xl z-[100] max-h-[400px] overflow-y-auto">
                     <div onClick={() => { setSelectedPrice(""); setActiveMenu("none"); }} className="px-6 py-3 text-sm font-bold text-gray-500 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5 cursor-pointer">Any Price</div>
                     {PRICE_RANGES.map(price => (
                       <div 
                           key={price.value} 
                           onClick={() => { setSelectedPrice(price.value); setActiveMenu("none"); }} 
-                          className="px-6 py-3 text-sm font-bold text-gray-400 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5 flex justify-between items-center cursor-pointer"
+                          className="px-6 py-3 text-sm font-bold text-gray-400 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5 flex justify-between items-center cursor-pointer last:border-0"
                       >
                           {price.label}
                           {selectedPrice === price.value && <Check size={14} className="text-[#D4AF37]"/>}
@@ -180,8 +180,8 @@ export default function SearchWidget() {
               )}
           </div>
 
-          {/* 🟢 MOBILE TOGGLE: More Filters (Order 3) */}
-          <div className="md:hidden order-3 border-t border-white/10">
+          {/* 🟢 MOBILE TOGGLE: More Filters (Order 3) - Z-Index 40 */}
+          <div className="md:hidden order-3 border-t border-white/10 relative z-[40]">
              <button 
                 onClick={() => setShowAdvancedMobile(!showAdvancedMobile)}
                 className="w-full bg-black/60 text-gray-400 font-bold uppercase text-[10px] py-4 flex items-center justify-center gap-2 hover:text-white hover:bg-black/80 transition-colors"
@@ -191,17 +191,18 @@ export default function SearchWidget() {
              </button>
           </div>
 
-          {/* 🟢 ANIMATED CONTAINER (Order 4) */}
+          {/* 🟢 ANIMATED CONTAINER (Order 4) - Z-Index 30 */}
           <div 
              className={`
-                order-4 md:col-span-6 md:grid md:grid-cols-6 md:gap-px 
-                transition-all duration-500 ease-in-out overflow-hidden
-                ${showAdvancedMobile ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0 md:max-h-none md:opacity-100'}
+                order-4 md:col-span-6 md:grid md:grid-cols-6 md:gap-px relative z-[30]
+                transition-all duration-500 ease-in-out
+                md:!transition-none md:!max-h-none md:!opacity-100 md:!overflow-visible
+                ${showAdvancedMobile ? 'max-h-[1200px] opacity-100 overflow-visible' : 'max-h-0 opacity-0 overflow-hidden md:overflow-visible'}
              `}
           >
               
               {/* PRICE (Mobile Only) */}
-              <div className="md:hidden relative border-t border-white/10">
+              <div className={`md:hidden relative border-t border-white/10 ${activeMenu === "price" ? "z-50" : "z-20"}`}>
                   <div 
                     className="bg-black/60 flex items-center justify-between px-4 py-4 hover:bg-black/80 transition-colors cursor-pointer backdrop-blur-md h-full"
                     onClick={() => setActiveMenu(activeMenu === "price" ? "none" : "price")}
@@ -216,13 +217,13 @@ export default function SearchWidget() {
                   </div>
 
                   {activeMenu === "price" && (
-                    <div className="absolute top-full left-0 w-full mt-px bg-[#111] border border-white/10 shadow-2xl z-[100] max-h-[300px] overflow-y-auto">
+                    <div className="absolute top-full left-0 w-full mt-px bg-[#111] border border-white/10 shadow-2xl z-[100] max-h-[400px] overflow-y-auto">
                         <div onClick={() => { setSelectedPrice(""); setActiveMenu("none"); }} className="px-6 py-3 text-sm font-bold text-gray-500 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5 cursor-pointer">Any Price</div>
                         {PRICE_RANGES.map(price => (
                           <div 
                               key={price.value} 
                               onClick={() => { setSelectedPrice(price.value); setActiveMenu("none"); }} 
-                              className="px-6 py-3 text-sm font-bold text-gray-400 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5 flex justify-between items-center cursor-pointer"
+                              className="px-6 py-3 text-sm font-bold text-gray-400 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5 flex justify-between items-center cursor-pointer last:border-0"
                           >
                               {price.label}
                               {selectedPrice === price.value && <Check size={14} className="text-[#D4AF37]"/>}
@@ -233,7 +234,7 @@ export default function SearchWidget() {
               </div>
 
               {/* 3. TYPE (Col-2) */}
-              <div className="md:col-span-2 relative border-t border-white/10 md:border-t-0">
+              <div className={`md:col-span-2 relative border-t border-white/10 md:border-t-0 ${activeMenu === "type" ? "z-50" : "z-10"}`}>
                   <div 
                     className="bg-black/60 flex items-center justify-between px-4 py-4 hover:bg-black/80 transition-colors cursor-pointer md:border-l border-white/5 backdrop-blur-md h-full"
                     onClick={() => setActiveMenu(activeMenu === "type" ? "none" : "type")}
@@ -246,13 +247,13 @@ export default function SearchWidget() {
                   </div>
 
                   {activeMenu === "type" && (
-                    <div className="absolute top-full left-0 w-full mt-px bg-[#111] border border-white/10 shadow-2xl z-[100] max-h-[300px] overflow-y-auto">
+                    <div className="absolute top-full left-0 w-full mt-px bg-[#111] border border-white/10 shadow-2xl z-[100] max-h-[400px] overflow-y-auto">
                         <div onClick={() => { setSelectedType(""); setActiveMenu("none"); }} className="px-6 py-3 text-sm font-bold text-gray-500 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5 cursor-pointer">All Types</div>
                         {PROPERTY_TYPES.map(type => (
                           <div 
                               key={type} 
                               onClick={() => { setSelectedType(type); setActiveMenu("none"); }} 
-                              className="px-6 py-3 text-sm font-bold text-gray-700 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5 flex justify-between items-center cursor-pointer"
+                              className="px-6 py-3 text-sm font-bold text-gray-300 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5 flex justify-between items-center cursor-pointer last:border-0"
                           >
                               {type} {selectedType === type && <Check size={14} className="text-[#D4AF37]"/>}
                           </div>
@@ -262,7 +263,7 @@ export default function SearchWidget() {
               </div>
 
               {/* 4. BEDS (Col-2) */}
-              <div className="md:col-span-2 relative border-t border-white/10 md:border-t-0">
+              <div className={`md:col-span-2 relative border-t border-white/10 md:border-t-0 ${activeMenu === "beds" ? "z-50" : "z-0"}`}>
                   <div 
                     className="bg-black/60 flex items-center justify-between px-3 py-4 hover:bg-black/80 transition-colors cursor-pointer md:border-l border-white/5 backdrop-blur-md h-full"
                     onClick={() => setActiveMenu(activeMenu === "beds" ? "none" : "beds")}
@@ -275,13 +276,13 @@ export default function SearchWidget() {
                   </div>
 
                   {activeMenu === "beds" && (
-                    <div className="absolute top-full left-0 w-full mt-px bg-[#111] border border-white/10 shadow-2xl z-[100] max-h-[300px] overflow-y-auto">
-                        <div onClick={() => { setSelectedBeds(""); setActiveMenu("none"); }} className="px-4 py-3 text-sm font-bold text-gray-500 hover:text-white hover:bg-white/5 transition-colors border-b border-gray-100 cursor-pointer">Any</div>
+                    <div className="absolute top-full left-0 w-full mt-px bg-[#111] border border-white/10 shadow-2xl z-[100] max-h-[400px] overflow-y-auto">
+                        <div onClick={() => { setSelectedBeds(""); setActiveMenu("none"); }} className="px-4 py-3 text-sm font-bold text-gray-500 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5 cursor-pointer">Any</div>
                         {NUMBER_OPTIONS.map(num => (
                           <div 
                               key={num} 
                               onClick={() => { setSelectedBeds(num); setActiveMenu("none"); }} 
-                              className="px-4 py-3 text-sm font-bold text-gray-700 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5 flex justify-between items-center cursor-pointer"
+                              className="px-4 py-3 text-sm font-bold text-gray-300 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5 flex justify-between items-center cursor-pointer last:border-0"
                           >
                               {num} {selectedBeds === num && <Check size={14} className="text-[#D4AF37]"/>}
                           </div>
@@ -291,7 +292,7 @@ export default function SearchWidget() {
               </div>
 
               {/* 5. BATHS (Col-2) */}
-              <div className="md:col-span-2 relative border-t border-white/10 md:border-t-0">
+              <div className={`md:col-span-2 relative border-t border-white/10 md:border-t-0 ${activeMenu === "baths" ? "z-50" : "z-0"}`}>
                   <div 
                     className="bg-black/60 flex items-center justify-between px-3 py-4 hover:bg-black/80 transition-colors cursor-pointer md:border-l border-white/5 backdrop-blur-md h-full"
                     onClick={() => setActiveMenu(activeMenu === "baths" ? "none" : "baths")}
@@ -304,13 +305,13 @@ export default function SearchWidget() {
                   </div>
 
                   {activeMenu === "baths" && (
-                    <div className="absolute top-full left-0 w-full mt-px bg-[#111] border border-white/10 shadow-2xl z-[100] max-h-[300px] overflow-y-auto">
+                    <div className="absolute top-full left-0 w-full mt-px bg-[#111] border border-white/10 shadow-2xl z-[100] max-h-[400px] overflow-y-auto">
                         <div onClick={() => { setSelectedBaths(""); setActiveMenu("none"); }} className="px-4 py-3 text-sm font-bold text-gray-500 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5 cursor-pointer">Any</div>
                         {NUMBER_OPTIONS.map(num => (
                           <div 
                               key={num} 
                               onClick={() => { setSelectedBaths(num); setActiveMenu("none"); }} 
-                              className="px-4 py-3 text-sm font-bold text-gray-400 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5 flex justify-between items-center cursor-pointer"
+                              className="px-4 py-3 text-sm font-bold text-gray-400 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5 flex justify-between items-center cursor-pointer last:border-0"
                           >
                               {num} {selectedBaths === num && <Check size={14} className="text-[#D4AF37]"/>}
                           </div>
@@ -320,8 +321,8 @@ export default function SearchWidget() {
               </div>
           </div>
 
-          {/* 6. SEARCH BUTTON (Order 5) */}
-          <div className="order-5 md:col-span-12 border-t border-white/10 md:border-t-0 md:mt-2">
+          {/* 6. SEARCH BUTTON (Order 5) - Z-Index 10 */}
+          <div className="order-5 md:col-span-12 border-t border-white/10 md:border-t-0 md:mt-2 relative z-[10]">
              <button 
                 onClick={handleSearch}
                 className="w-full h-full min-h-[60px] bg-white/5 backdrop-blur-2xl border-t border-l border-white/30 border-b border-r border-black/30 text-white hover:bg-[#D4AF37]/30 hover:border-[#D4AF37]/50 transition-all duration-300 font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-2 cursor-pointer py-4"
